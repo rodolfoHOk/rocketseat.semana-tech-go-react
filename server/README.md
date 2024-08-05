@@ -10,7 +10,9 @@
 ### Bibliotecas adicionais
 
 - github.com/joho/godotenv
--
+- github.com/google/uuid v1.6.0
+- github.com/jackc/pgx/v5 v5.6.0
+- github.com/go-chi/chi/v5 v5.1.0
 
 ### Ferramentas Go
 
@@ -29,7 +31,7 @@
 - go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 - sqlc generate -f ./internal/store/pgstore/sqlc.yaml
 - go generate ./...
--
+- go run ./cmd/wsrs/main.go
 
 ## Links úteis
 
