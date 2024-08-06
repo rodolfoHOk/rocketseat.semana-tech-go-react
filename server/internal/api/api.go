@@ -152,7 +152,16 @@ func (h apiHandler) handleCreateRoom(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h apiHandler) handleGetRooms(w http.ResponseWriter, r *http.Request) {
-
+	rooms, err := h.q.GetRooms(r.Context())
+	if err != nil {
+		slog.Error("failed to get rooms", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+	if rooms == nil {
+		rooms = []pgstore.Room{}
+	}
+	h.writeJsonResponse(w, rooms)
 }
 
 func (h apiHandler) handleCreateRoomMessage(w http.ResponseWriter, r *http.Request) {
@@ -231,16 +240,20 @@ func (h apiHandler) writeUUIDResponse(w http.ResponseWriter, id uuid.UUID) {
 	type response struct {
 		ID string `json:"id"`
 	}
-	data, err := json.Marshal(response{
+	h.writeJsonResponse(w, response{
 		ID: id.String(),
 	})
+}
+
+func (h apiHandler) writeJsonResponse(w http.ResponseWriter, data any) {
+	responseData, err := json.Marshal(data)
 	if err != nil {
 		slog.Error("failed to marshal response json", "error", err)
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(data)
+	_, err = w.Write(responseData)
 	if err != nil {
 		slog.Error("failed to write response", "error", err)
 	}
