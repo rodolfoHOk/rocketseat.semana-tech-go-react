@@ -316,7 +316,31 @@ func (h apiHandler) handleRemoveReactionFromMessage(w http.ResponseWriter, r *ht
 }
 
 func (h apiHandler) handleMarkMessageAsAnswered(w http.ResponseWriter, r *http.Request) {
+	rawRoomID := chi.URLParam(r, "room_id")
+	roomID := h.validateRoomWithID(w, r, rawRoomID)
+	if roomID == uuid.Nil {
+		return
+	}
+	rawMessageID := chi.URLParam(r, "message_id")
+	message, err := h.validateAndGetMessageWithID(w, r, rawMessageID)
+	if err != nil {
+		return
+	}
+	err = h.q.MarkMessageAsAnswered(r.Context(), message.ID)
+	if err != nil {
+		slog.Error("failed to mark message as answered", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 
+	go h.notifyClients(Message{
+		Kind:   MessageKindMessageAnswered,
+		RoomID: roomID.String(),
+		Value: MessageMessageAnswered{
+			ID: message.ID.String(),
+		},
+	})
 }
 
 func (h apiHandler) validateRoomWithID(w http.ResponseWriter, r *http.Request, rawRoomID string) uuid.UUID {

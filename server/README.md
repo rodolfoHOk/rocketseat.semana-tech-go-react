@@ -30,7 +30,7 @@
 - implementado o método da api handler handleGetRoomMessage
 - implementado o método da api handler handleReactToMessage
 - implementado o método da api handler handleRemoveReactionFromMessage
-  <!-- - implementado o método da api handler handleMarkMessageAsAnswered -->
+- implementado o método da api handler handleMarkMessageAsAnswered
 
 ## Guia de comandos
 
