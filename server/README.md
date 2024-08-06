@@ -26,9 +26,9 @@
 - criado método para a api handler chamado validateRoomWithID para evitar duplicação de códigos
 - criado método para a api handler chamado writeUUIDResponse para evitar duplicação de códigos e adicionado mais tratativas de erros
 - implementado o método da api handler handleGetRooms
-  <!-- - implementado o método da api handler handleGetRoomMessages -->
-  <!-- - implementado o método da api handler handleGetRoomMessage -->
-  <!-- - implementado o método da api handler handleReactToMessage -->
+- implementado o método da api handler handleGetRoomMessages
+- implementado o método da api handler handleGetRoomMessage
+- implementado o método da api handler handleReactToMessage
   <!-- - implementado o método da api handler handleRemoveReactionFromMessage -->
   <!-- - implementado o método da api handler handleMarkMessageAsAnswered -->
 

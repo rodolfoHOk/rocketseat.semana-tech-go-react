@@ -77,12 +77,29 @@ func NewHandler(q *pgstore.Queries) http.Handler {
 }
 
 const (
-	MessageKindMessageCreated = "message_created"
+	MessageKindMessageCreated           = "message_created"
+	MessageKindMessageReactionIncreased = "message_reaction_increased"
+	MessageKindMessageReactionDecreased = "message_reaction_decreased"
+	MessageKindMessageAnswered          = "message_answered"
 )
 
 type MessageMessageCreated struct {
 	ID      string `json:"id"`
 	Message string `json:"message"`
+}
+
+type MessageMessageReactionIncreased struct {
+	ID    string `json:"id"`
+	Count int64  `json:"count"`
+}
+
+type MessageMessageReactionDecreased struct {
+	ID    string `json:"id"`
+	Count int64  `json:"count"`
+}
+
+type MessageMessageAnswered struct {
+	ID string `json:"id"`
 }
 
 type Message struct {
@@ -223,26 +240,45 @@ func (h apiHandler) handleGetRoomMessage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	rawMessageID := chi.URLParam(r, "message_id")
-	messageID, err := uuid.Parse(rawMessageID)
+	message, err := h.validateAndGetMessageWithID(w, r, rawMessageID)
 	if err != nil {
-		http.Error(w, "invalid message id", http.StatusBadRequest)
-		return
-	}
-	message, err := h.q.GetMessage(r.Context(), messageID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			http.Error(w, "message not found", http.StatusBadRequest)
-			return
-		}
-		slog.Error("failed to get message", "error", err)
-		http.Error(w, "something went wrong", http.StatusInternalServerError)
 		return
 	}
 	h.writeJsonResponse(w, message)
 }
 
 func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request) {
+	rawRoomID := chi.URLParam(r, "room_id")
+	roomID := h.validateRoomWithID(w, r, rawRoomID)
+	if roomID == uuid.Nil {
+		return
+	}
+	rawMessageID := chi.URLParam(r, "message_id")
+	message, err := h.validateAndGetMessageWithID(w, r, rawMessageID)
+	if err != nil {
+		return
+	}
+	count, err := h.q.ReactToMessage(r.Context(), message.ID)
+	if err != nil {
+		slog.Error("failed to react message", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+	type response struct {
+		Count int64 `json:"count"`
+	}
+	h.writeJsonResponse(w, response{
+		Count: count,
+	})
 
+	go h.notifyClients(Message{
+		Kind:   MessageKindMessageReactionIncreased,
+		RoomID: roomID.String(),
+		Value: MessageMessageReactionIncreased{
+			ID:    message.ID.String(),
+			Count: count,
+		},
+	})
 }
 
 func (h apiHandler) handleRemoveReactionFromMessage(w http.ResponseWriter, r *http.Request) {
@@ -270,6 +306,25 @@ func (h apiHandler) validateRoomWithID(w http.ResponseWriter, r *http.Request, r
 		return uuid.Nil
 	}
 	return roomID
+}
+
+func (h apiHandler) validateAndGetMessageWithID(w http.ResponseWriter, r *http.Request, rawMessageID string) (pgstore.Message, error) {
+	messageID, err := uuid.Parse(rawMessageID)
+	if err != nil {
+		http.Error(w, "invalid message id", http.StatusBadRequest)
+		return pgstore.Message{}, err
+	}
+	message, err := h.q.GetMessage(r.Context(), messageID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "message not found", http.StatusBadRequest)
+			return pgstore.Message{}, err
+		}
+		slog.Error("failed to get message", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return pgstore.Message{}, err
+	}
+	return message, nil
 }
 
 func (h apiHandler) writeUUIDResponse(w http.ResponseWriter, id uuid.UUID) {
