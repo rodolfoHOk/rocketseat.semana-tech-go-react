@@ -282,7 +282,37 @@ func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request)
 }
 
 func (h apiHandler) handleRemoveReactionFromMessage(w http.ResponseWriter, r *http.Request) {
+	rawRoomID := chi.URLParam(r, "room_id")
+	roomID := h.validateRoomWithID(w, r, rawRoomID)
+	if roomID == uuid.Nil {
+		return
+	}
+	rawMessageID := chi.URLParam(r, "message_id")
+	message, err := h.validateAndGetMessageWithID(w, r, rawMessageID)
+	if err != nil {
+		return
+	}
+	count, err := h.q.RemoveReactionFromMessage(r.Context(), message.ID)
+	if err != nil {
+		slog.Error("failed to remove reaction from message", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+	type response struct {
+		Count int64 `json:"count"`
+	}
+	h.writeJsonResponse(w, response{
+		Count: count,
+	})
 
+	go h.notifyClients(Message{
+		Kind:   MessageKindMessageReactionDecreased,
+		RoomID: roomID.String(),
+		Value: MessageMessageReactionDecreased{
+			ID:    message.ID.String(),
+			Count: count,
+		},
+	})
 }
 
 func (h apiHandler) handleMarkMessageAsAnswered(w http.ResponseWriter, r *http.Request) {
