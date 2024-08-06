@@ -217,7 +217,28 @@ func (h apiHandler) handleGetRoomMessages(w http.ResponseWriter, r *http.Request
 }
 
 func (h apiHandler) handleGetRoomMessage(w http.ResponseWriter, r *http.Request) {
-
+	rawRoomID := chi.URLParam(r, "room_id")
+	roomID := h.validateRoomWithID(w, r, rawRoomID)
+	if roomID == uuid.Nil {
+		return
+	}
+	rawMessageID := chi.URLParam(r, "message_id")
+	messageID, err := uuid.Parse(rawMessageID)
+	if err != nil {
+		http.Error(w, "invalid message id", http.StatusBadRequest)
+		return
+	}
+	message, err := h.q.GetMessage(r.Context(), messageID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "message not found", http.StatusBadRequest)
+			return
+		}
+		slog.Error("failed to get message", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+	h.writeJsonResponse(w, message)
 }
 
 func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request) {
