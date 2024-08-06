@@ -14,6 +14,7 @@
 - github.com/jackc/pgx/v5
 - github.com/go-chi/chi/v5
 - github.com/go-chi/cors
+- github.com/gorilla/websocket
 
 ### Ferramentas Go
 
@@ -40,3 +41,4 @@
 - [Godotenv Github](https://github.com/joho/godotenv)
 - [SQLC DEV](https://sqlc.dev/)
 - [Go Chi cors Github](https://github.com/go-chi/cors)
+- [Gorilla Websocket Github](https://github.com/gorilla/websocket)
