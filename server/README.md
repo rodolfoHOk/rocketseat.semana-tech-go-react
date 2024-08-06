@@ -10,9 +10,10 @@
 ### Bibliotecas adicionais
 
 - github.com/joho/godotenv
-- github.com/google/uuid v1.6.0
-- github.com/jackc/pgx/v5 v5.6.0
-- github.com/go-chi/chi/v5 v5.1.0
+- github.com/google/uuid
+- github.com/jackc/pgx/v5
+- github.com/go-chi/chi/v5
+- github.com/go-chi/cors
 
 ### Ferramentas Go
 
@@ -38,3 +39,4 @@
 - [Tern Github](https://github.com/jackc/tern)
 - [Godotenv Github](https://github.com/joho/godotenv)
 - [SQLC DEV](https://sqlc.dev/)
+- [Go Chi cors Github](https://github.com/go-chi/cors)
