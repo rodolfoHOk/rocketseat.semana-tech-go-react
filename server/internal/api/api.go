@@ -199,7 +199,21 @@ func (h apiHandler) handleCreateRoomMessage(w http.ResponseWriter, r *http.Reque
 }
 
 func (h apiHandler) handleGetRoomMessages(w http.ResponseWriter, r *http.Request) {
-
+	rawRoomID := chi.URLParam(r, "room_id")
+	roomID := h.validateRoomWithID(w, r, rawRoomID)
+	if roomID == uuid.Nil {
+		return
+	}
+	messages, err := h.q.GetRoomMessages(r.Context(), roomID)
+	if err != nil {
+		slog.Error("failed to get room message", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+	if messages == nil {
+		messages = []pgstore.Message{}
+	}
+	h.writeJsonResponse(w, messages)
 }
 
 func (h apiHandler) handleGetRoomMessage(w http.ResponseWriter, r *http.Request) {
@@ -230,6 +244,7 @@ func (h apiHandler) validateRoomWithID(w http.ResponseWriter, r *http.Request, r
 			http.Error(w, "room not found", http.StatusBadRequest)
 			return uuid.Nil
 		}
+		slog.Error("failed to get room", "error", err)
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
 		return uuid.Nil
 	}
