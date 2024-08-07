@@ -6,7 +6,8 @@
 
 - Typescript / Javascript
 - React Js / Vite Js
--
+- Tailwind CSS
+- Web Sockets
 
 ### Bibliotecas adicionais
 
