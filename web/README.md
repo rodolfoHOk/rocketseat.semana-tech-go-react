@@ -13,6 +13,7 @@
 
 - react-router-dom
 - lucide-react
+- sonner
 
 ## Galeria de images
 
@@ -24,3 +25,4 @@
 - [React Router](https://reactrouter.com/en/main/start/overview)
 - [Lucide Icons](https://lucide.dev/guide/packages/lucide-react)
 - [React 19 RC Upgrade Guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide)
+- [Sonner](https://sonner.emilkowal.ski/)
