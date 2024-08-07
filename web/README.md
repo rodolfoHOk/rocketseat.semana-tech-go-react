@@ -15,3 +15,6 @@
 ## Galeria de images
 
 ## Links úteis
+
+- [Vite Js](https://vitejs.dev/)
+- [Tailwind CSS](https://tailwindcss.com/docs/guides/vite#react)
