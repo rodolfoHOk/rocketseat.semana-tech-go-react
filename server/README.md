@@ -1,4 +1,4 @@
-# Go + React na Prática Server
+# Go + React na Prática - Server
 
 > Semana Tech Go + React da RocketSeat
 
