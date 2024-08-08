@@ -17,6 +17,8 @@
 
 ## Galeria de images
 
+-
+
 ## Links úteis
 
 - [Figma Design](https://www.figma.com/community/file/1402302237126862071)

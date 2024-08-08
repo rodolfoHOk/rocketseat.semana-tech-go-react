@@ -9,6 +9,7 @@
 - Docker
 - Typescript
 - React Js
+- Tailwind CSS
 
 ## Projetos
 
