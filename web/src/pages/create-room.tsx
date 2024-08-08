@@ -15,7 +15,7 @@ export function CreateRoom() {
     try {
       const { roomId } = await createRoom({ theme });
       navigate(`/room/${roomId}`);
-    } catch (err) {
+    } catch {
       toast.error('Falha ao tentar criar sala!');
     }
   }
