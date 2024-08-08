@@ -2,14 +2,14 @@ import { useParams } from 'react-router-dom';
 import { ArrowRight, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import amaLogo from '../assets/ama-logo.svg';
-import { Message } from '../components/message';
+import { Messages } from '../components/messages';
+import { Suspense } from 'react';
 
 export function Room() {
   const { roomId } = useParams();
 
   function handleShareRoom() {
     const url = window.location.href.toString();
-
     if (navigator.share !== undefined && navigator.canShare()) {
       navigator.share({ url });
     } else {
@@ -58,23 +58,9 @@ export function Room() {
         </button>
       </form>
 
-      <ol className="list-decimal list-outside px-3 space-y-8">
-        <Message
-          text="O que é GoLang e quais são suas principais vantagens em comparação com outras linguagens de programação como Python, Java ou C++?"
-          amountOfReactions={187}
-          answered
-        />
-
-        <Message
-          text="Como funcionam as goroutines em GoLang e por que elas são importantes para a concorrência e paralelismo?"
-          amountOfReactions={173}
-        />
-
-        <Message
-          text="Quais são as melhores práticas para organizar o código em um projeto GoLang, incluindo pacotes, módulos e a estrutura de diretórios?"
-          amountOfReactions={87}
-        />
-      </ol>
+      <Suspense fallback={<p>Carregando...</p>}>
+        <Messages />
+      </Suspense>
     </div>
   );
 }
